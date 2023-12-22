@@ -1,0 +1,21 @@
+{
+    "host":"localhost",
+    "port":8080,
+
+    "dbHost":"64.226.106.122",
+    "dbUser":"chat",
+    "dbName":"chat",
+    "dbPass":"pudge322hook",
+    "dbPort":5432,
+    "dbMode":"disable",
+    "dbLogMode":false,
+
+    "cacheHost":"64.226.106.122:6379",
+    "cachePass":"barabaltika9",
+
+    "secretKeyAccess": "WhBPjgbl8WFaFiLXrFlLNq0pGYUsrsy2",
+    "secretKeyRefresh": "qt0XyazfH52aiJw6gZITl2JL6TehyUOR",
+
+    "openAiAuthToken": "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",
+    "openAiAssistantId": "asst_s74qTm8v0LpwRftL80BLQUXi"
+}

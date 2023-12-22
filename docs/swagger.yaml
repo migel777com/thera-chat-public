@@ -1,0 +1,411 @@
+definitions:
+  handler.AuthorizationFields:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      rePassword:
+        type: string
+      surname:
+        type: string
+    type: object
+  handler.TokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  models.Message:
+    properties:
+      role:
+        type: string
+      text:
+        type: string
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      roles:
+        type: string
+      surname:
+        type: string
+      thread:
+        type: string
+    type: object
+host: http://64.226.106.122:8080
+info:
+  contact: {}
+  description: This is a server for communication with ChatGPT.
+  title: TheraChat API
+  version: "1.0"
+paths:
+  /auth/email:
+    post:
+      consumes:
+      - application/json
+      description: Login by email
+      parameters:
+      - description: Fill in only email and password
+        in: body
+        name: rq
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AuthorizationFields'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Login by email
+      tags:
+      - auth
+  /auth/phone:
+    post:
+      consumes:
+      - application/json
+      description: Login by phone number
+      parameters:
+      - description: Fill in only phone and password
+        in: body
+        name: rq
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AuthorizationFields'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Login by phone number
+      tags:
+      - auth
+  /chat/anon/:id/message:
+    post:
+      consumes:
+      - application/json
+      description: write message from unauthorized user to the bot and get response
+      parameters:
+      - description: ID of anonymous conversation
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Message text
+        in: body
+        name: rq
+        required: true
+        schema:
+          $ref: '#/definitions/models.Message'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response from the bot
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Writes message to anon chat
+      tags:
+      - chat
+  /chat/anon/:id/messages:
+    get:
+      consumes:
+      - application/json
+      description: get messages between bot and unauthorized user
+      parameters:
+      - description: ID of anonymous conversation
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Message'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get anon conversation messages
+      tags:
+      - chat
+  /chat/anon/start:
+    post:
+      consumes:
+      - application/json
+      description: starts chat with ChatGPT with unauthorized user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ID of anonymous conversation
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Start new anon chat
+      tags:
+      - chat
+  /chat/message:
+    post:
+      consumes:
+      - application/json
+      description: write message from authorized user to the bot and get response
+      parameters:
+      - description: Message text
+        in: body
+        name: rq
+        required: true
+        schema:
+          $ref: '#/definitions/models.Message'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response from the bot
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Writes message
+      tags:
+      - chat
+  /chat/messages:
+    post:
+      consumes:
+      - application/json
+      description: get messages between bot and authorized user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Message'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get conversation messages
+      tags:
+      - chat
+  /chat/start:
+    post:
+      consumes:
+      - application/json
+      description: starts chat with ChatGPT with authorized user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Start new chat
+      tags:
+      - chat
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Get user data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get user data
+      tags:
+      - user
+  /profile/update:
+    patch:
+      consumes:
+      - application/json
+      description: Update user data
+      parameters:
+      - description: User data
+        in: body
+        name: rq
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update user data
+      tags:
+      - user
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: add new user to db and return access and refresh token
+      parameters:
+      - description: Input data
+        in: body
+        name: rq
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AuthorizationFields'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Register new user
+      tags:
+      - auth
+  /token/refresh/:refreshToken:
+    get:
+      consumes:
+      - application/json
+      description: creates new access and refresh tokens
+      parameters:
+      - description: Refresh Token
+        in: path
+        name: refreshToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Refresh tokens
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
