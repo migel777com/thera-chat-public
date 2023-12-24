@@ -14,11 +14,26 @@ definitions:
       surname:
         type: string
     type: object
+  handler.Response:
+    properties:
+      result:
+        type: string
+    type: object
+  handler.StartAnonChatResponse:
+    properties:
+      id:
+        type: string
+    type: object
   handler.TokenResponse:
     properties:
       accessToken:
         type: string
       refreshToken:
+        type: string
+    type: object
+  middleware.ErrorResponse:
+    properties:
+      message:
         type: string
     type: object
   models.Message:
@@ -76,11 +91,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       summary: Login by email
       tags:
       - auth
@@ -106,11 +121,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       summary: Login by phone number
       tags:
       - auth
@@ -137,15 +152,15 @@ paths:
         "200":
           description: Response from the bot
           schema:
-            type: string
+            $ref: '#/definitions/models.Message'
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       summary: Writes message to anon chat
       tags:
       - chat
@@ -172,11 +187,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       summary: Get anon conversation messages
       tags:
       - chat
@@ -191,15 +206,15 @@ paths:
         "200":
           description: ID of anonymous conversation
           schema:
-            type: string
+            $ref: '#/definitions/handler.StartAnonChatResponse'
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       summary: Start new anon chat
       tags:
       - chat
@@ -221,15 +236,15 @@ paths:
         "200":
           description: Response from the bot
           schema:
-            type: string
+            $ref: '#/definitions/models.Message'
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Writes message
@@ -252,11 +267,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get conversation messages
@@ -273,15 +288,15 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/handler.Response'
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Start new chat
@@ -302,11 +317,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user data
@@ -334,11 +349,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update user data
@@ -366,11 +381,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       summary: Register new user
       tags:
       - auth
@@ -395,11 +410,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/middleware.ErrorResponse'
       summary: Refresh tokens
       tags:
       - auth

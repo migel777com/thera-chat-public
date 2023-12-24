@@ -45,9 +45,9 @@ func (ch *ChatHandler) Init() {
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerAuth
-//	@Success		200	{object}	string
-//	@Failure		400	{object}	string
-//	@Failure		500	{object}	string
+//	@Success		200	{object}	Response
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
 //	@Router			/chat/start [post]
 func (ch *ChatHandler) StartChat(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -80,7 +80,7 @@ func (ch *ChatHandler) StartChat(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, "chat started")
+	c.JSON(http.StatusOK, Response{"chat started"})
 }
 
 // WriteChatMessage godoc
@@ -92,9 +92,9 @@ func (ch *ChatHandler) StartChat(c *gin.Context) {
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Param			rq	body		models.Message.Text	true	"Message text"
-//	@Success		200	{object}	string				"Response from the bot"
-//	@Failure		400	{object}	string
-//	@Failure		500	{object}	string
+//	@Success		200	{object}	models.Message				"Response from the bot"
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
 //	@Router			/chat/message [post]
 func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -147,7 +147,7 @@ func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, models.Message{Text: resp})
 }
 
 // GetChatMessages godoc
@@ -159,8 +159,8 @@ func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Success		200	{object}	[]models.Message
-//	@Failure		400	{object}	string
-//	@Failure		500	{object}	string
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
 //	@Router			/chat/messages [post]
 func (ch *ChatHandler) GetChatMessages(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -209,6 +209,10 @@ func (ch *ChatHandler) GetChatMessages(c *gin.Context) {
 	c.JSON(http.StatusOK, messages)
 }
 
+type StartAnonChatResponse struct {
+	Id string `json:"id"`
+}
+
 // StartAnonChat godoc
 //
 //	@Summary		Start new anon chat
@@ -216,9 +220,9 @@ func (ch *ChatHandler) GetChatMessages(c *gin.Context) {
 //	@Tags			chat
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	string	"ID of anonymous conversation"
-//	@Failure		400	{object}	string
-//	@Failure		500	{object}	string
+//	@Success		200	{object}	StartAnonChatResponse	"ID of anonymous conversation"
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
 //	@Router			/chat/anon/start [post]
 func (ch *ChatHandler) StartAnonChat(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -241,7 +245,7 @@ func (ch *ChatHandler) StartAnonChat(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, id.String())
+	c.JSON(http.StatusOK, StartAnonChatResponse{id.String()})
 }
 
 // WriteAnonChatMessage godoc
@@ -253,9 +257,9 @@ func (ch *ChatHandler) StartAnonChat(c *gin.Context) {
 //	@Produce		json
 //	@Param			id	path		string				true	"ID of anonymous conversation"
 //	@Param			rq	body		models.Message.Text	true	"Message text"
-//	@Success		200	{object}	string				"Response from the bot"
-//	@Failure		400	{object}	string
-//	@Failure		500	{object}	string
+//	@Success		200	{object}	models.Message				"Response from the bot"
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
 //	@Router			/chat/anon/:id/message [post]
 func (ch *ChatHandler) WriteAnonChatMessage(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -282,7 +286,7 @@ func (ch *ChatHandler) WriteAnonChatMessage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, models.Message{Text: resp})
 }
 
 // GetAnonChatMessages godoc
@@ -294,8 +298,8 @@ func (ch *ChatHandler) WriteAnonChatMessage(c *gin.Context) {
 //	@Produce		json
 //	@Param			id	path		string	true	"ID of anonymous conversation"
 //	@Success		200	{object}	[]models.Message
-//	@Failure		400	{object}	string
-//	@Failure		500	{object}	string
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
 //	@Router			/chat/anon/:id/messages [get]
 func (ch *ChatHandler) GetAnonChatMessages(c *gin.Context) {
 	ctx := c.Request.Context()

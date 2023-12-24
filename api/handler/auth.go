@@ -51,8 +51,8 @@ type TokenResponse struct {
 //	@Produce		json
 //	@Param			rq	body		AuthorizationFields	true	"Input data"
 //	@Success		200	{object}	TokenResponse
-//	@Failure		400	{object}	string
-//	@Failure		500	{object}	string
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
 //	@Router			/register [post]
 func (a *AuthHandler) Register(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -128,8 +128,8 @@ func (a *AuthHandler) Register(c *gin.Context) {
 //	@Produce		json
 //	@Param			rq	body		AuthorizationFields	true	"Fill in only phone and password"
 //	@Success		200	{object}	TokenResponse
-//	@Failure		400	{object}	string
-//	@Failure		500	{object}	string
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
 //	@Router			/auth/phone [post]
 func (a *AuthHandler) LoginPhone(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -193,8 +193,8 @@ func (a *AuthHandler) LoginPhone(c *gin.Context) {
 //	@Produce		json
 //	@Param			rq	body		AuthorizationFields	true	"Fill in only email and password"
 //	@Success		200	{object}	TokenResponse
-//	@Failure		400	{object}	string
-//	@Failure		500	{object}	string
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
 //	@Router			/auth/email [post]
 func (a *AuthHandler) LoginEmail(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -258,8 +258,8 @@ func (a *AuthHandler) LoginEmail(c *gin.Context) {
 //	@Produce		json
 //	@Param			refreshToken	path		string	true	"Refresh Token"
 //	@Success		200				{object}	TokenResponse
-//	@Failure		400				{object}	string
-//	@Failure		500				{object}	string
+//	@Failure		400				{object}	middleware.ErrorResponse
+//	@Failure		500				{object}	middleware.ErrorResponse
 //	@Router			/token/refresh/:refreshToken [get]
 func (a *AuthHandler) Refresh(c *gin.Context) {
 	ctx := c.Request.Context()

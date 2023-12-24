@@ -5,6 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
 // Can pass the logger
 func ErrorHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -20,7 +24,7 @@ func ErrorHandler() gin.HandlerFunc {
 
 		// status -1 doesn't overwrite existing status code
 		if err != nil {
-			c.JSON(-1, err.Error())
+			c.JSON(-1, ErrorResponse{err.Error()})
 		}
 	}
 }
