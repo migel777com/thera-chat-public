@@ -39,6 +39,7 @@ func (s *Server) Init(ctx context.Context) {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}),
+		middleware.JSONMiddleware(),
 		middleware.ErrorHandler())
 
 	s.Router.GET("/", s.HealthCheck)

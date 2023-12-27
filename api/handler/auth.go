@@ -85,12 +85,19 @@ func (a *AuthHandler) Register(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, errors.New("passwords not same"))
 		return
 	}
+
+	thread, err := a.Server.AI.NewThread(ctx)
+	if err != nil {
+		c.Error(err)
+	}
+
 	user = models.User{
 		Phone:    input.Phone,
 		Password: input.Password,
 		Email:    input.Email,
 		Name:     input.Name,
 		Surname:  input.Surname,
+		Thread:   thread.ID,
 	}
 	err = a.Server.Db.Create(ctx, &user)
 	if err != nil {
@@ -111,6 +118,12 @@ func (a *AuthHandler) Register(c *gin.Context) {
 	}
 
 	err = a.Server.Cache.SetHash(ctx, auth.RedisRefreshPath+refresh.Plaintext, user, 7*24*time.Hour)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = a.Server.Cache.SetHash(ctx, RedisThread+user.Id.String(), thread.ID, 24*time.Hour)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

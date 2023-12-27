@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
+	"slices"
 	"time"
 )
 
@@ -112,8 +113,8 @@ func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 		return
 	}
 
-	var thread string
-	err = ch.Server.Cache.GetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), &thread)
+	var threadId string
+	err = ch.Server.Cache.GetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), &threadId)
 	if models.IsErrNotFound(err) {
 		var filter models.FilterParams
 		filter.Filter = fmt.Sprintf(`id = '%v'`, cacheUser.(models.User).Id.String())
@@ -126,12 +127,23 @@ func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 		}
 
 		if user.Thread == "" {
-			c.AbortWithError(http.StatusUnauthorized, errors.New("chat not started"))
-			return
+			thread, err := ch.Server.AI.NewThread(ctx)
+			if err != nil {
+				c.Error(err)
+			}
+
+			filter.Filter = fmt.Sprintf(`id = '%v'`, cacheUser.(models.User).Id.String())
+
+			user = models.User{Thread: thread.ID}
+			err = ch.Server.Db.Update(ctx, filter, &user)
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
 		}
 
-		thread = user.Thread
-		err = ch.Server.Cache.SetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), thread, 24*time.Hour)
+		threadId = user.Thread
+		err = ch.Server.Cache.SetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), threadId, 24*time.Hour)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -141,7 +153,7 @@ func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 		return
 	}
 
-	resp, err := ch.Server.AI.NewMessage(ctx, thread, input.Text)
+	resp, err := ch.Server.AI.NewMessage(ctx, threadId, input.Text)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -171,8 +183,8 @@ func (ch *ChatHandler) GetChatMessages(c *gin.Context) {
 		return
 	}
 
-	var thread string
-	err := ch.Server.Cache.GetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), &thread)
+	var threadId string
+	err := ch.Server.Cache.GetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), &threadId)
 	if models.IsErrNotFound(err) {
 		var filter models.FilterParams
 		filter.Filter = fmt.Sprintf(`id = '%v'`, cacheUser.(models.User).Id.String())
@@ -185,12 +197,23 @@ func (ch *ChatHandler) GetChatMessages(c *gin.Context) {
 		}
 
 		if user.Thread == "" {
-			c.AbortWithError(http.StatusUnauthorized, errors.New("chat not started"))
-			return
+			thread, err := ch.Server.AI.NewThread(ctx)
+			if err != nil {
+				c.Error(err)
+			}
+
+			filter.Filter = fmt.Sprintf(`id = '%v'`, cacheUser.(models.User).Id.String())
+
+			user = models.User{Thread: thread.ID}
+			err = ch.Server.Db.Update(ctx, filter, &user)
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
 		}
 
-		thread = user.Thread
-		err = ch.Server.Cache.SetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), thread, 24*time.Hour)
+		threadId = user.Thread
+		err = ch.Server.Cache.SetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), threadId, 24*time.Hour)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -200,11 +223,13 @@ func (ch *ChatHandler) GetChatMessages(c *gin.Context) {
 		return
 	}
 
-	messages, err := ch.Server.AI.GetMessages(ctx, thread)
+	messages, err := ch.Server.AI.GetMessages(ctx, threadId)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+
+	slices.Reverse(messages)
 
 	c.JSON(http.StatusOK, messages)
 }
@@ -318,6 +343,8 @@ func (ch *ChatHandler) GetAnonChatMessages(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+
+	slices.Reverse(messages)
 
 	c.JSON(http.StatusOK, messages)
 }
