@@ -160,6 +160,9 @@ func (a *AuthHandler) LoginPhone(c *gin.Context) {
 			phone    = '%v' and
 			password = '%v'`,
 			input.Phone, input.Password)
+	} else {
+		c.AbortWithError(http.StatusBadRequest, errors.New("phone number is empty"))
+		return
 	}
 
 	var user models.User
@@ -225,6 +228,9 @@ func (a *AuthHandler) LoginEmail(c *gin.Context) {
 			email    = '%v' and
 			password = '%v'`,
 			input.Email, input.Password)
+	} else {
+		c.AbortWithError(http.StatusBadRequest, errors.New("email is empty"))
+		return
 	}
 
 	var user models.User

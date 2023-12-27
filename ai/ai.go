@@ -115,5 +115,8 @@ func (a *AI) GetMessages(ctx context.Context, threadId string) ([]models.Message
 		return messages, nil
 	}
 
-	return nil, errors.New("empty conversation")
+	// TODO return error
+	//return nil, errors.New("empty conversation")
+	messages := make([]models.Message, 0)
+	return messages, nil
 }
