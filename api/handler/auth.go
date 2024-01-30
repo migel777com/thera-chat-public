@@ -28,15 +28,6 @@ func (a *AuthHandler) Init() {
 	a.Server.Router.GET("/token/refresh/:token", a.Refresh)
 }
 
-type AuthorizationFields struct {
-	Email      string `json:"email"`
-	Phone      string `json:"phone"`
-	Password   string `json:"password"`
-	RePassword string `json:"rePassword"`
-	Name       string `json:"name"`
-	Surname    string `json:"surname"`
-}
-
 type TokenResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
@@ -57,10 +48,16 @@ type TokenResponse struct {
 func (a *AuthHandler) Register(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var input AuthorizationFields
+	var input models.AuthorizationFields
 	err := c.ShouldBind(&input)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = input.Validate()
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -68,7 +65,7 @@ func (a *AuthHandler) Register(c *gin.Context) {
 	if len(input.Email) > 0 {
 		filter.Filter = fmt.Sprintf(`email = '%v'`, input.Email)
 	} else if len(input.Phone) > 0 {
-		filter.Filter = fmt.Sprintf(`phone_number = '%v'`, input.Phone)
+		filter.Filter = fmt.Sprintf(`phone = '%v'`, input.Phone)
 	}
 
 	var user models.User
@@ -147,7 +144,7 @@ func (a *AuthHandler) Register(c *gin.Context) {
 func (a *AuthHandler) LoginPhone(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var input AuthorizationFields
+	var input models.AuthorizationFields
 	err := c.ShouldBind(&input)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -161,14 +158,22 @@ func (a *AuthHandler) LoginPhone(c *gin.Context) {
 			password = '%v'`,
 			input.Phone, input.Password)
 	} else {
-		c.AbortWithError(http.StatusBadRequest, errors.New("phone number is empty"))
+		c.AbortWithError(http.StatusBadRequest, models.AdvancedErrorResponse{
+			Key:     "phone_field",
+			Code:    http.StatusBadRequest,
+			Message: "Поле 'phone' должно быть заполнено.",
+		})
 		return
 	}
 
 	var user models.User
 	err = a.Server.Db.Get(ctx, filter, &user)
 	if err != nil {
-		c.AbortWithError(http.StatusUnauthorized, err)
+		c.AbortWithError(http.StatusUnauthorized, models.AdvancedErrorResponse{
+			Key:     "auth_fields",
+			Code:    http.StatusUnauthorized,
+			Message: "Неверный логин или пароль.",
+		})
 		return
 	}
 
@@ -215,7 +220,7 @@ func (a *AuthHandler) LoginPhone(c *gin.Context) {
 func (a *AuthHandler) LoginEmail(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var input AuthorizationFields
+	var input models.AuthorizationFields
 	err := c.ShouldBind(&input)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -229,14 +234,22 @@ func (a *AuthHandler) LoginEmail(c *gin.Context) {
 			password = '%v'`,
 			input.Email, input.Password)
 	} else {
-		c.AbortWithError(http.StatusBadRequest, errors.New("email is empty"))
+		c.AbortWithError(http.StatusBadRequest, models.AdvancedErrorResponse{
+			Key:     "email_field",
+			Code:    http.StatusBadRequest,
+			Message: "Поле 'email' должно быть заполнено.",
+		})
 		return
 	}
 
 	var user models.User
 	err = a.Server.Db.Get(ctx, filter, &user)
 	if err != nil {
-		c.AbortWithError(http.StatusUnauthorized, err)
+		c.AbortWithError(http.StatusUnauthorized, models.AdvancedErrorResponse{
+			Key:     "auth_fields",
+			Code:    http.StatusUnauthorized,
+			Message: "Неверный логин или пароль.",
+		})
 		return
 	}
 

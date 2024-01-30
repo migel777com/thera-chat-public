@@ -1,13 +1,11 @@
 package middleware
 
 import (
+	"chatgpt/models"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
-
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
 
 // Can pass the logger
 func ErrorHandler() gin.HandlerFunc {
@@ -24,7 +22,16 @@ func ErrorHandler() gin.HandlerFunc {
 
 		// status -1 doesn't overwrite existing status code
 		if err != nil {
-			c.JSON(-1, ErrorResponse{err.Error()})
+			var errResponse models.ErrorResponse
+			var errAdvanced models.AdvancedErrorResponse
+			switch {
+			case errors.As(err, &errResponse):
+				c.JSON(-1, gin.H{"error": models.ErrorResponse{Code: errResponse.Code, Message: errResponse.Message}})
+			case errors.As(err, &errAdvanced):
+				c.JSON(-1, gin.H{errAdvanced.Key: models.AdvancedErrorResponse{Code: errAdvanced.Code, Message: errAdvanced.Message}})
+			default:
+				c.JSON(-1, gin.H{"error": models.ErrorResponse{Code: c.Writer.Status(), Message: err.Error()}})
+			}
 		}
 	}
 }

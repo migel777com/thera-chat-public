@@ -113,6 +113,15 @@ func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 		return
 	}
 
+	if input.Text == "" {
+		c.AbortWithError(http.StatusBadRequest, models.AdvancedErrorResponse{
+			Key:     "text_field",
+			Code:    http.StatusBadRequest,
+			Message: "Поле 'text' должно быть заполнено.",
+		})
+		return
+	}
+
 	var threadId string
 	err = ch.Server.Cache.GetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), &threadId)
 	if models.IsErrNotFound(err) {
@@ -295,6 +304,15 @@ func (ch *ChatHandler) WriteAnonChatMessage(c *gin.Context) {
 	err := c.ShouldBind(&input)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	if input.Text == "" {
+		c.AbortWithError(http.StatusBadRequest, models.AdvancedErrorResponse{
+			Key:     "text_field",
+			Code:    http.StatusBadRequest,
+			Message: "Поле 'text' должно быть заполнено.",
+		})
 		return
 	}
 
