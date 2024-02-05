@@ -4,12 +4,14 @@ import (
 	"chatgpt/api/middleware"
 	"chatgpt/models"
 	"chatgpt/server"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
 	"slices"
+	"strings"
 	"time"
 )
 
@@ -136,15 +138,7 @@ func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 		}
 
 		if user.Thread == "" {
-			thread, err := ch.Server.AI.NewThread(ctx)
-			if err != nil {
-				c.Error(err)
-			}
-
-			filter.Filter = fmt.Sprintf(`id = '%v'`, cacheUser.(models.User).Id.String())
-
-			user = models.User{Thread: thread.ID}
-			err = ch.Server.Db.Update(ctx, filter, &user)
+			user, err = ch.newUserThread(ctx, cacheUser.(models.User))
 			if err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
@@ -163,12 +157,46 @@ func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 	}
 
 	resp, err := ch.Server.AI.NewMessage(ctx, threadId, input.Text)
-	if err != nil {
+	if err != nil && strings.Contains(err.Error(), "error, status code: 404, message: No thread found with id") {
+		user, err := ch.newUserThread(ctx, cacheUser.(models.User))
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		err = ch.Server.Cache.SetHash(ctx, RedisThread+cacheUser.(models.User).Id.String(), user.Thread, 24*time.Hour)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		resp, err = ch.Server.AI.NewMessage(ctx, user.Thread, input.Text)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+	} else if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, models.Message{Text: resp})
+}
+
+func (ch *ChatHandler) newUserThread(ctx context.Context, cacheUser models.User) (models.User, error) {
+	thread, err := ch.Server.AI.NewThread(ctx)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	var filter models.FilterParams
+	filter.Filter = fmt.Sprintf(`id = '%v'`, cacheUser.Id.String())
+
+	user := models.User{Thread: thread.ID}
+	err = ch.Server.Db.Update(ctx, filter, &user)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }
 
 // GetChatMessages godoc

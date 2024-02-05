@@ -55,7 +55,6 @@ func (a *AI) NewMessage(ctx context.Context, threadId string, text string) (stri
 
 	run, err := a.client.CreateRun(ctx, threadId, openai.RunRequest{
 		AssistantID: a.assistant.ID,
-		Model:       a.model,
 	})
 	if err != nil {
 		return "", err
@@ -66,9 +65,10 @@ func (a *AI) NewMessage(ctx context.Context, threadId string, text string) (stri
 		if err != nil {
 			return "", err
 		}
+		time.Sleep(time.Second * 2)
 		switch run.Status {
 		case "in_progress":
-			time.Sleep(time.Second * 5)
+			time.Sleep(time.Second * 2)
 		case "completed":
 			return a.GetLastMessage(ctx, threadId)
 		case "requires_action":
