@@ -25,7 +25,6 @@ func (a *AuthHandler) Init() {
 	//a.Server.Router.POST("/verify", a.Verify)
 	a.Server.Router.POST("/auth/phone", a.LoginPhone)
 	a.Server.Router.POST("/auth/email", a.LoginEmail)
-	//a.Server.Router.POST("/auth/apple", a.Login)
 	a.Server.Router.GET("/token/refresh/:token", a.Refresh)
 
 	a.Server.Router.POST("/auth/firebase", a.FirebaseAuth)
@@ -43,10 +42,10 @@ type TokenResponse struct {
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			rq	body		AuthorizationFields	true	"Input data"
+//	@Param			rq	body		models.AuthorizationFields	true	"Input data"
 //	@Success		200	{object}	TokenResponse
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.ErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/register [post]
 func (a *AuthHandler) Register(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -139,10 +138,10 @@ func (a *AuthHandler) Register(c *gin.Context) {
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			rq	body		AuthorizationFields	true	"Fill in only phone and password"
+//	@Param			rq	body		models.AuthorizationFields	true	"Fill in only phone and password"
 //	@Success		200	{object}	TokenResponse
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/auth/phone [post]
 func (a *AuthHandler) LoginPhone(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -215,10 +214,10 @@ func (a *AuthHandler) LoginPhone(c *gin.Context) {
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			rq	body		AuthorizationFields	true	"Fill in only email and password"
+//	@Param			rq	body		models.AuthorizationFields	true	"Fill in only email and password"
 //	@Success		200	{object}	TokenResponse
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/auth/email [post]
 func (a *AuthHandler) LoginEmail(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -291,10 +290,10 @@ func (a *AuthHandler) LoginEmail(c *gin.Context) {
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			rq	body		FirebaseAuthFields	true	"Input data"
+//	@Param			rq	body		models.FirebaseAuthFields	true	"Input data"
 //	@Success		200	{object}	TokenResponse
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/register [post]
 func (a *AuthHandler) FirebaseAuth(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -398,8 +397,8 @@ func (a *AuthHandler) FirebaseAuth(c *gin.Context) {
 //	@Produce		json
 //	@Param			refreshToken	path		string	true	"Refresh Token"
 //	@Success		200				{object}	TokenResponse
-//	@Failure		400				{object}	middleware.ErrorResponse
-//	@Failure		500				{object}	middleware.ErrorResponse
+//	@Failure		400				{object}	models.AdvancedErrorResponse
+//	@Failure		500				{object}	models.ErrorResponse
 //	@Router			/token/refresh/:refreshToken [get]
 func (a *AuthHandler) Refresh(c *gin.Context) {
 	ctx := c.Request.Context()

@@ -35,8 +35,8 @@ func (u *UserHandler) Init() {
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Success		200	{object}	models.User
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/profile [get]
 func (u *UserHandler) Profile(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -70,8 +70,8 @@ func (u *UserHandler) Profile(c *gin.Context) {
 //	@Security		BearerAuth
 //	@Param			rq	body		models.User	true	"User data"
 //	@Success		200	{object}	models.User
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/profile/update [patch]
 func (u *UserHandler) Update(c *gin.Context) {
 	ctx := c.Request.Context()

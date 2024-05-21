@@ -49,8 +49,8 @@ func (ch *ChatHandler) Init() {
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Success		200	{object}	Response
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/chat/start [post]
 func (ch *ChatHandler) StartChat(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -95,9 +95,9 @@ func (ch *ChatHandler) StartChat(c *gin.Context) {
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Param			rq	body		models.Message.Text	true	"Message text"
-//	@Success		200	{object}	models.Message				"Response from the bot"
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Success		200	{object}	models.Message		"Response from the bot"
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/chat/message [post]
 func (ch *ChatHandler) WriteChatMessage(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -208,8 +208,8 @@ func (ch *ChatHandler) newUserThread(ctx context.Context, cacheUser models.User)
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Success		200	{object}	[]models.Message
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/chat/messages [post]
 func (ch *ChatHandler) GetChatMessages(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -283,8 +283,8 @@ type StartAnonChatResponse struct {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	StartAnonChatResponse	"ID of anonymous conversation"
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/chat/anon/start [post]
 func (ch *ChatHandler) StartAnonChat(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -319,9 +319,9 @@ func (ch *ChatHandler) StartAnonChat(c *gin.Context) {
 //	@Produce		json
 //	@Param			id	path		string				true	"ID of anonymous conversation"
 //	@Param			rq	body		models.Message.Text	true	"Message text"
-//	@Success		200	{object}	models.Message				"Response from the bot"
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Success		200	{object}	models.Message		"Response from the bot"
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/chat/anon/:id/message [post]
 func (ch *ChatHandler) WriteAnonChatMessage(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -369,8 +369,8 @@ func (ch *ChatHandler) WriteAnonChatMessage(c *gin.Context) {
 //	@Produce		json
 //	@Param			id	path		string	true	"ID of anonymous conversation"
 //	@Success		200	{object}	[]models.Message
-//	@Failure		400	{object}	middleware.ErrorResponse
-//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Failure		400	{object}	models.AdvancedErrorResponse
+//	@Failure		500	{object}	models.ErrorResponse
 //	@Router			/chat/anon/:id/messages [get]
 func (ch *ChatHandler) GetAnonChatMessages(c *gin.Context) {
 	ctx := c.Request.Context()
