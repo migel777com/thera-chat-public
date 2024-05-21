@@ -1,6 +1,7 @@
 package apple
 
 import (
+	"chatgpt/config"
 	"context"
 	"fmt"
 	"github.com/Timothylock/go-signin-with-apple/apple"
@@ -18,6 +19,16 @@ type AppleAuthenticator struct {
 type AuthenticatedAppleUser struct {
 	AppleUserId string
 	Email       string
+}
+
+func NewAppleAuth(config *config.Config) *AppleAuthenticator {
+	return &AppleAuthenticator{
+		AndroidClientId: config.AppleAuthAndroidClientId,
+		ClientId:        config.AppleAuthClientId,
+		PrivateKey:      config.AppleAuthPrivateKey,
+		TeamId:          config.AppleAuthTeamId,
+		KeyId:           config.AppleAuthKeyId,
+	}
 }
 
 func (a AppleAuthenticator) ValidateAuthorizationToken(token string, isAndroid bool) (*AuthenticatedAppleUser, error) {

@@ -50,3 +50,7 @@ func (a *AuthorizationFields) Validate() error {
 
 	return nil
 }
+
+type FirebaseAuthFields struct {
+	UserUID string `json:"userUID"`
+}

@@ -3,6 +3,7 @@ package main
 import (
 	a "chatgpt/ai"
 	h "chatgpt/api/handler"
+	f "chatgpt/auth/firebase"
 	"chatgpt/config"
 	"chatgpt/models"
 	s "chatgpt/server"
@@ -45,7 +46,12 @@ func main() {
 
 	ai := a.NewAI(configuration)
 
-	server := s.NewApiServer(configuration, db, cache, ai)
+	firebase, err := f.NewFirebaseAuthenticator(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	server := s.NewApiServer(configuration, db, cache, ai, firebase)
 	server.Init(ctx)
 
 	handler := h.NewHandler(server)

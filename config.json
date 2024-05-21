@@ -2,7 +2,7 @@
     "host":"localhost",
     "port":8080,
 
-    "dbHost":"64.226.106.122",
+    "dbHost":"188.166.159.42",
     "dbUser":"chat",
     "dbName":"chat",
     "dbPass":"pudge322hook",
@@ -10,7 +10,7 @@
     "dbMode":"disable",
     "dbLogMode":false,
 
-    "cacheHost":"64.226.106.122:6379",
+    "cacheHost":"188.166.159.42:6379",
     "cachePass":"barabaltika9",
 
     "secretKeyAccess": "WhBPjgbl8WFaFiLXrFlLNq0pGYUsrsy2",

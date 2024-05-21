@@ -23,6 +23,14 @@ type Config struct {
 	SecretKeyRefresh  string `json:"secretKeyRefresh"`
 	OpenAiAuthToken   string `json:"openAiAuthToken"`
 	OpenAiAssistantId string `json:"openAiAssistantId"`
+
+	GoogleAuthAudiences []string `json:"googleAuthAudiences"`
+
+	AppleAuthAndroidClientId string `json:"appleAuthAndroidClientId"`
+	AppleAuthClientId        string `json:"appleAuthClientId"`
+	AppleAuthPrivateKey      string `json:"appleAuthPrivateKey"`
+	AppleAuthTeamId          string `json:"appleAuthTeamId"`
+	AppleAuthKeyId           string `json:"appleAuthKeyId"`
 }
 
 func NewConfiguration() *Config {

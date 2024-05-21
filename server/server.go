@@ -3,6 +3,7 @@ package server
 import (
 	"chatgpt/ai"
 	"chatgpt/api/middleware"
+	f "chatgpt/auth/firebase"
 	"chatgpt/config"
 	"chatgpt/models"
 	"context"
@@ -19,15 +20,17 @@ type Server struct {
 	Db            models.DbClient
 	Cache         models.CacheClient
 	AI            *ai.AI
+	Firebase      *f.FirebaseAuthenticator
 }
 
-func NewApiServer(config *config.Config, db models.DbClient, cache models.CacheClient, ai *ai.AI) *Server {
+func NewApiServer(config *config.Config, db models.DbClient, cache models.CacheClient, ai *ai.AI, firebase *f.FirebaseAuthenticator) *Server {
 	return &Server{
 		Configuration: config,
 		Router:        gin.Default(),
 		Db:            db,
 		Cache:         cache,
 		AI:            ai,
+		Firebase:      firebase,
 	}
 }
 

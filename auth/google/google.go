@@ -1,8 +1,10 @@
 package google
 
 import (
+	"chatgpt/config"
 	"context"
 	"errors"
+	"fmt"
 	"google.golang.org/api/idtoken"
 	"strings"
 )
@@ -18,6 +20,10 @@ type GoogleUser struct {
 	LastName  string
 }
 
+func NewGoogleAuth(config *config.Config) *GoogleAuthenticator {
+	return &GoogleAuthenticator{Audiences: config.GoogleAuthAudiences}
+}
+
 func (g GoogleAuthenticator) ValidateIdToken(token string) (*GoogleUser, error) {
 	payload, err := idtoken.Validate(context.Background(), token, "")
 	if err != nil {
@@ -30,7 +36,7 @@ func (g GoogleAuthenticator) ValidateIdToken(token string) (*GoogleUser, error) 
 		UserId: payload.Subject,
 	}
 
-	err = validateAudience(g.Audiences, (claims)["aud"].(string))
+	//err = validateAudience(g.Audiences, (claims)["aud"].(string))
 
 	if err != nil {
 		return nil, err
@@ -56,6 +62,7 @@ func (g GoogleAuthenticator) ValidateIdToken(token string) (*GoogleUser, error) 
 		user.LastName = lastName.(string)
 	}
 
+	fmt.Println(user)
 	return user, nil
 }
 

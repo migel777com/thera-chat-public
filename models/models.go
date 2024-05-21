@@ -14,6 +14,8 @@ type User struct {
 	Name      string    `json:"name"`
 	Surname   string    `json:"surname"`
 	Thread    string    `json:"thread"`
+	IsGoogle  bool      `json:"isGoogle"`
+	IsApple   bool      `json:"isApple"`
 	CreatedAt time.Time `json:"createdAt" gorm:"default:now()"`
 }
 

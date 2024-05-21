@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/sashabaranov/go-openai"
 	"net/http"
 	"time"
 )
@@ -26,6 +27,8 @@ func (a *AuthHandler) Init() {
 	a.Server.Router.POST("/auth/email", a.LoginEmail)
 	//a.Server.Router.POST("/auth/apple", a.Login)
 	a.Server.Router.GET("/token/refresh/:token", a.Refresh)
+
+	a.Server.Router.POST("/auth/firebase", a.FirebaseAuth)
 }
 
 type TokenResponse struct {
@@ -273,6 +276,111 @@ func (a *AuthHandler) LoginEmail(c *gin.Context) {
 	}
 
 	err = a.Server.Cache.SetHash(ctx, auth.RedisRefreshPath+refresh.Plaintext, user, 7*24*time.Hour)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, TokenResponse{access.Plaintext, refresh.Plaintext})
+}
+
+// FirebaseAuth godoc
+//
+//	@Summary		Register new user
+//	@Description	add new user to db and return access and refresh token
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			rq	body		FirebaseAuthFields	true	"Input data"
+//	@Success		200	{object}	TokenResponse
+//	@Failure		400	{object}	middleware.ErrorResponse
+//	@Failure		500	{object}	middleware.ErrorResponse
+//	@Router			/register [post]
+func (a *AuthHandler) FirebaseAuth(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var input models.FirebaseAuthFields
+	err := c.ShouldBind(&input)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	firebaseUser, err := a.Server.Firebase.GetUser(ctx, input.UserUID)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	provider := firebaseUser.ProviderUserInfo[0].ProviderID
+
+	var filter models.FilterParams
+	filter.Filter = fmt.Sprintf(`email = '%v'`, firebaseUser.Email)
+
+	var thread openai.Thread
+	var user models.User
+	err = a.Server.Db.Get(ctx, filter, &user)
+	if models.IsErrNotFound(err) {
+		thread, err = a.Server.AI.NewThread(ctx)
+		if err != nil {
+			c.Error(err)
+		}
+
+		user = models.User{
+			Email:  firebaseUser.Email,
+			Name:   firebaseUser.UserInfo.DisplayName,
+			Thread: thread.ID,
+		}
+
+		switch provider {
+		case "google.com":
+			user.IsGoogle = true
+		case "apple.com":
+			user.IsApple = true
+		}
+
+		err = a.Server.Db.Create(ctx, &user)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+	} else if models.AllowErrNotFound(err) != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	} else if (provider == "google.com" && !user.IsGoogle) || (provider == "apple.com" && !user.IsApple) {
+		switch provider {
+		case "google.com":
+			user.IsGoogle = true
+		case "apple.com":
+			user.IsApple = true
+		}
+
+		err = a.Server.Db.Update(ctx, filter, &user)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	access, refresh, err := auth.GetAuthTokens(user.Id.String(), a.Server.Configuration.SecretKeyAccess, a.Server.Configuration.SecretKeyRefresh)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = a.Server.Cache.SetHash(ctx, auth.RedisAccessPath+access.Plaintext, user, 24*time.Hour)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = a.Server.Cache.SetHash(ctx, auth.RedisRefreshPath+refresh.Plaintext, user, 7*24*time.Hour)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = a.Server.Cache.SetHash(ctx, RedisThread+user.Id.String(), thread.ID, 24*time.Hour)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
