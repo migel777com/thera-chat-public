@@ -379,7 +379,7 @@ func (a *AuthHandler) FirebaseAuth(c *gin.Context) {
 		return
 	}
 
-	err = a.Server.Cache.SetHash(ctx, RedisThread+user.Id.String(), thread.ID, 24*time.Hour)
+	err = a.Server.Cache.SetHash(ctx, RedisThread+user.Id.String(), user.Thread, 24*time.Hour)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
