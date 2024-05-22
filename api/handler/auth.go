@@ -294,7 +294,7 @@ func (a *AuthHandler) LoginEmail(c *gin.Context) {
 //	@Success		200	{object}	TokenResponse
 //	@Failure		400	{object}	models.AdvancedErrorResponse
 //	@Failure		500	{object}	models.ErrorResponse
-//	@Router			/register [post]
+//	@Router			/auth/firebase [post]
 func (a *AuthHandler) FirebaseAuth(c *gin.Context) {
 	ctx := c.Request.Context()
 
