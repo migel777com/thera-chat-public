@@ -12,7 +12,7 @@ type FirebaseAuthenticator struct {
 }
 
 func NewFirebaseAuthenticator(ctx context.Context) (*FirebaseAuthenticator, error) {
-	opt := option.WithCredentialsFile("./th3rachat-firebase-adminsdk-a3jhr-b45619ef83.json")
+	opt := option.WithCredentialsFile("./thera-chat-firebase.json")
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		return nil, err
